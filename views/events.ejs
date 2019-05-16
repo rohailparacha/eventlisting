@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Events</title>
+  
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+
+  
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  
+
+    <link rel="stylesheet" href="/vendor/fa/css/fontawesome-all.css">
+    <link rel="stylesheet" href="/vendor/fa/css/fontawesome-all.css">
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="/vendor/jquery-ui.css">
+    <link rel="stylesheet" href="/vendor/jquery-ui.theme.css">  
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.css" />
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+    
+
+    <link href="https://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
+    <script src="https://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/e8bddc60e73c1ec2475f827be36e1957af72e2ea/src/js/bootstrap-datetimepicker.js"></script>
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+  <!-- <script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQzyFpezEkMTKMTYn-kC7y6F7wlB3ecVg"></script> -->
+ 
+  <!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnRq6sXgHqg0Ru9idpbsfAW31oBcb54f4"></script> -->
+
+  <script src="https://cdn.jsdelivr.net/npm/places.js@1.16.4"></script>
+
+
+  
+  
+
+
+
+<script>
+
+window.onload = ()=>{
+  
+  var placesAutocomplete = places({
+    appId: 'pl3P0AC4NZKZ',
+    apiKey: '75ffe3a88dc7706b6d19b7dc14fc2879',
+    container: document.getElementById('locationTbx')
+  });
+
+  placesAutocomplete.on('change', function resultSelected(e) {
+    $("#latTbx").val(e.suggestion.latlng.lat);
+    $("#lonTbx").val(e.suggestion.latlng.lng)
+    
+  });
+   
+    
+}
+
+function submitForm(e) {
+
+    var $inputs = $('form :input');
+
+    var values = {};
+    $inputs.each(function () {
+      values[this.name] = $(this).val();
+    });
+
+    if(values.title=="")
+    {
+    alert('Enter event title')
+    return ;
+    }
+
+    if(values.description==""){
+    alert('Enter some description')
+    return ;
+    }
+
+
+    if(values.description==""){
+    alert('Enter some description')
+    return ;
+    }
+
+
+    if(values.location==""){
+    alert('Enter some location')
+    return;
+    }
+
+
+    if(values.start=="")
+    {
+    alert('Enter start date')
+    return;
+    }
+
+    if(values.end==""){
+    alert('Enter end date')
+    return;
+    }
+    console.log(window.entries);
+
+    var alreadyExist = window.entries.filter(item => {
+
+      // return ((new Date(values.start)> new Date(item.start) )||(new Date(values.start) < new Date(item.end) ) || (new Date(values.end)> new Date(item.start) )||(new Date(values.end) > new Date(item.end) ));
+      return ((new Date(values.start)>= new Date(item.start) )&&(new Date(values.start) <= new Date(item.end) ) || (new Date(values.end)>= new Date(item.start) )&&(new Date(values.end) <= new Date(item.end) ));
+    });
+
+
+    console.log(alreadyExist);
+
+    if (alreadyExist.length>0) {
+      alert("Slot is already booked.")
+    } else {
+      $("form")[0].submit();
+    }
+
+
+  }
+
+function showcalendar(){
+  
+  var btn = document.getElementById('showCal');
+
+  if(btn.innerHTML=="Show Calendar Events"){
+    $("#showCal").text("Hide Calendar");
+    $("#calendar").hide();
+  }else{
+    $("#showCal").text("Show Calendar Events");
+    $("#calendar").show();
+    //document.getElementById('showCal').style.display='block';
+  }
+  
+  
+  
+}
+
+$(document).ready(function() {
+
+       $(".eventBtn").click(function(){
+          $("#myModal").dialog({ modal: true, width:'500px'});
+        
+        });
+
+
+      $("#startTbx").datetimepicker();
+
+      $("#endTbx").datetimepicker({
+            useCurrent: false             
+        });
+
+
+       $("#startTbx").on("dp.change", function (e) {
+            $('#endTbx').data("DateTimePicker").minDate(e.date);
+        });
+        $("#datetimepicker7").on("dp.change", function (e) {
+            $('#endTbx').data("DateTimePicker").maxDate(e.date);
+        });
+
+  window.entries = <%- JSON.stringify(data) %>
+  
+    var entriesArr = [];
+  
+    for(var i=0;i<entries.length;i++){
+      var obj = {
+        id: i,
+        title: entries[i].title,
+        start: new Date(entries[i].start).toLocaleDateString(),
+        end: new Date(entries[i].end).toLocaleDateString(),
+        description: "<div> <strong>Description</strong>: " + entries[i].description + "</div>",
+        lat: entries[i].lat,
+        long: entries[i].long,
+      }
+
+      entriesArr.push(obj);
+
+      }
+
+
+   var calendar = $('#calendar').fullCalendar({
+    editable:true,
+    header:{
+     left:'prev,next today',
+     center:'title',
+     right:'month,agendaWeek,agendaDay'
+    },
+    events:entriesArr,
+    
+    eventRender: function (event, element) {
+        element.attr('href', 'javascript:void(0);');
+        element.click(function() {
+            $("#startTime").html("<strong>Start Date </strong> : "+moment(event.start).format('MMM Do h:mm A'));
+            $("#endTime").html("<strong>End Date</strong> : "+moment(event.end).format('MMM Do h:mm A'));
+            $("#eventInfo").html(event.description);
+        
+            $("#eventContent").dialog({ modal: true, title: event.title});
+          
+        });
+    }
+    
+   });
+});
+
+</script>
+</head>
+<body>
+ 
+<br><br>
+  <div class="container">
+
+      <div id="map"></div> 
+
+    <div class="" style="display: block;text-align: center;">
+        <button type="button" class="btn btn-info btn-lg eventBtn"  data-toggle="modal" >Create Event</button>
+        <button type="button" class="btn btn-info btn-lg" id="showCal" onclick="showcalendar()">Show Calendar Events</button>
+        <table class="table" >
+            <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Location</th>
+                  <th>Start</th>
+                  <th>End</th>
+                  
+                </tr>
+              </thead>
+            <% for(var i=0; i < data.length; i++) { %>
+            <tr >
+              <td> <%- data[i].title %> </td>
+              <td> <%- data[i].description %> </td>
+              <td> <%= data[i].location %> </td>
+              
+              <td> <%= moment(new Date(data[i].start)).format('MMMM Do YYYY, h:mm:ss a'); %> </td>
+              <td> <%= moment(new Date(data[i].end)).format('MMMM Do YYYY, h:mm:ss a'); %> </td>
+                
+              
+            </tr>
+            <% } %>
+        </table>
+
+      
+         
+    </div>
+
+    <br/>
+
+    <div id="eventContent" title="Event Details" style="display:none;">
+       <span id="startTime"></span><br>
+       <span id="endTime"></span><br>
+      <p id="eventInfo"></p>
+
+      
+      <!-- <p><strong><a id="eventLink" href="" target="_blank">Read More</a></strong></p> -->
+  </div>
+
+      <div id="calendar" style="display: block;text-align: center;"></div>
+    
+
+      <div id="myModal" class="" style="display:none">
+        <form action="/api/events"  method="post">
+         
+          
+          <div class="form-group" style="display: block;text-align: center;">
+              <label  class="label"  ></label>  
+            <label  class="form-control " st  for="descTbx">Provide event details</label>
+              
+            </div>
+
+          <div class="form-group">
+            <label for="titleTbx">Title:</label>
+            <input type="text" class="form-control" required name="title" id="titleTbx">
+          </div>
+
+
+          <div class="form-group">
+              <label for="descTbx">Description:</label>
+              <input type="text" class="form-control" name="description" id="descTbx">
+            </div>
+  
+          <div class="form-group">
+              <label for="locationTbx">Location:</label>
+              <input type="text" class="form-control" name="location" required id="locationTbx">
+          </div>
+          
+          <div class="form-group" style="position:relative;">
+              <label for="dateTbx">Start:</label>
+              <input type="text" class="form-control" name="start" required  id="startTbx">
+          </div>
+
+          <div class="form-group" style="position:relative">
+              <label for="dateTbx">End:</label>
+              <input type="text" class="form-control" required  name="end" id="endTbx">
+          </div>
+          
+
+          <input type="hidden" class="form-control" name="lat" id="latTbx" value="51.508742" >
+          <input type="hidden" class="form-control" name="long" id="lonTbx" value="-01.508742" >
+          
+          <button type="button" id="submitBtn" onclick="submitForm()" class="btn btn-default">Submit</button>
+         </form>
+        
+      </div>
+
+
+      
+
+      
+
+      </div>
+  
+</body>
+</html>
